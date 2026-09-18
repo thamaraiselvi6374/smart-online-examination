@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Exam Instructions - Smart Online Examination System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar(activePage='dashboard')}"></div>
+
+        <div class="app-main">
+            <div th:replace="~{fragments/header :: navbar(pageTitle='Examination Instructions')}"></div>
+
+            <div class="p-4">
+                <div class="glass-card p-4 p-md-5" style="max-width: 800px; margin: 0 auto;">
+                    <div class="text-center mb-4">
+                        <span class="badge bg-primary text-uppercase mb-2" th:text="${exam.subject.name}">Subject</span>
+                        <h3 class="fw-bold mb-1" th:text="${exam.title}">Exam Title</h3>
+                        <p class="text-secondary" th:text="${exam.description}">Exam Description</p>
+                    </div>
+
+                    <!-- EXAM METRICS -->
+                    <div class="row text-center g-3 my-4">
+                        <div class="col-4">
+                            <div class="p-3 bg-surface rounded-3 border">
+                                <i class="fas fa-clock fs-3 text-primary mb-1"></i>
+                                <div class="fw-bold" th:text="${exam.durationMinutes + ' Minutes'}">20 Mins</div>
+                                <div class="text-xs text-muted">Time Limit</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-surface rounded-3 border">
+                                <i class="fas fa-calculator fs-3 text-warning mb-1"></i>
+                                <div class="fw-bold" th:text="${exam.totalMarks}">20.0</div>
+                                <div class="text-xs text-muted">Total Marks</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-surface rounded-3 border">
+                                <i class="fas fa-check-double fs-3 text-success mb-1"></i>
+                                <div class="fw-bold" th:text="${exam.passingMarks}">10.0</div>
+                                <div class="text-xs text-muted">Passing Marks</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PROCTORING SECURITY RULES -->
+                    <div class="p-4 bg-surface rounded-3 border mb-4">
+                        <h5 class="fw-bold text-danger mb-3"><i class="fas fa-shield-alt me-2"></i>Exam Rules & Proctoring Instructions</h5>
+                        <ul class="text-secondary text-sm mb-0">
+                            <li class="mb-2"><strong>Server Countdown Timer:</strong> The exam timer starts immediately when you click "Start Exam". Navigating away or refreshing does not pause the timer.</li>
+                            <li class="mb-2"><strong>Auto Save Answers:</strong> Answers are saved automatically in real-time. You can navigate between questions freely using the question palette.</li>
+                            <li class="mb-2"><strong>Tab-Switch Detection:</strong> Switching browser tabs, opening inspect tools, or minimizing the window logs a <strong>Security Warning</strong>.</li>
+                            <li class="mb-2"><strong>Disqualification Policy:</strong> Accumulating more than <strong th:text="${exam.maxWarnings}">3</strong> security warnings will automatically submit and disqualify your attempt.</li>
+                            <li><strong>Auto Submit:</strong> When the countdown reaches 00:00, your exam will automatically submit.</li>
+                        </ul>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="agreeCheck" required>
+                        <label class="form-check-label text-sm fw-semibold text-secondary" for="agreeCheck">
+                            I have read all instructions carefully and agree to follow the proctoring security rules.
+                        </label>
+                    </div>
+
+                    <form th:action="@{'/student/exams/' + ${exam.id} + '/start'}" method="post">
+                        <div class="d-flex justify-content-between">
+                            <a href="/student/dashboard" class="btn btn-secondary px-4">Back</a>
+                            <button type="submit" class="btn btn-primary-gradient px-5 py-2.5" id="startBtn" disabled>
+                                Start Examination Now <i class="fas fa-play ms-1"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script>
+        document.getElementById('agreeCheck').addEventListener('change', function() {
+            document.getElementById('startBtn').disabled = !this.checked;
+        });
+    </script>
+</body>
+</html>

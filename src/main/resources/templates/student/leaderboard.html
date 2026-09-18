@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Leaderboard - Smart Online Examination System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar(activePage='leaderboard')}"></div>
+
+        <div class="app-main">
+            <div th:replace="~{fragments/header :: navbar(pageTitle='Global Student Leaderboard & Honor Roll')}"></div>
+
+            <div class="p-4">
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-trophy me-2 text-warning"></i>Top Performing Students</h5>
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Student Name</th>
+                                    <th>Examination</th>
+                                    <th>Subject</th>
+                                    <th>Score Obtained</th>
+                                    <th>Percentage</th>
+                                    <th>Completion Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="lb : ${leaderboard}">
+                                    <td>
+                                        <span class="badge rounded-circle p-2" 
+                                              th:classappend="${lb.rank == 1 ? 'bg-warning text-dark fs-6' : lb.rank == 2 ? 'bg-secondary text-white' : lb.rank == 3 ? 'bg-danger text-white' : 'bg-light text-dark'}"
+                                              th:text="${'#' + lb.rank}">#1</span>
+                                    </td>
+                                    <td class="fw-bold" th:text="${lb.studentName}">Student</td>
+                                    <td th:text="${lb.examTitle}">Exam</td>
+                                    <td th:text="${lb.subjectName}">Subject</td>
+                                    <td th:text="${lb.score + ' / ' + lb.totalMarks}">Score</td>
+                                    <td class="fw-bold text-primary" th:text="${lb.percentage + '%'}">100%</td>
+                                    <td th:text="${lb.timeTakenFormatted}">12m 30s</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(leaderboard)}">
+                                    <td colspan="7" class="text-center text-muted py-4">No completed exam attempts recorded yet. Be the first to top the leaderboard!</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

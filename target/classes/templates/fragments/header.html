@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+</head>
+<body>
+    <header th:fragment="navbar" class="app-navbar">
+        <div class="d-flex align-items-center gap-3">
+            <h4 class="mb-0 brand-font text-gradient" th:text="${pageTitle != null ? pageTitle : 'Smart Examination Portal'}">Smart Examination Portal</h4>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <!-- Theme Toggle Button -->
+            <button id="themeToggleBtn" class="btn btn-outline-secondary btn-sm rounded-circle p-2" title="Toggle Light/Dark Theme">
+                <i id="themeIcon" class="fas fa-moon"></i>
+            </button>
+
+            <!-- User Profile Dropdown -->
+            <div class="dropdown" sec:authorize="isAuthenticated()">
+                <div class="user-profile-badge dropdown-toggle" role="button" data-bs-toggle="dropdown">
+                    <div class="user-avatar" th:text="${#authentication.name.substring(0, 1).toUpperCase()}">U</div>
+                    <div class="d-none d-md-block text-start">
+                        <div class="fw-semibold text-sm" sec:authentication="name">User</div>
+                        <div class="text-xs text-muted" th:text="${#strings.replace(#authentication.authorities[0].authority, 'ROLE_', '')}">Role</div>
+                    </div>
+
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2 text-danger"></i> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+</body>
+</html>

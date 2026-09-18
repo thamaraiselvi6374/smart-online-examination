@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'Taking Exam - ' + exam.title}">Take Exam</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/exam-screen.css}">
+</head>
+<body class="bg-body d-flex flex-column min-vh-100">
+    <!-- TOP PROCTORED EXAM HEADER -->
+    <div class="exam-header">
+        <div>
+            <span class="badge bg-primary text-uppercase" th:text="${exam.subject.code}">CS101</span>
+            <h5 class="fw-bold mb-0 d-inline ms-2" th:text="${exam.title}">Exam Title</h5>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <span id="autoSaveBadge" class="badge bg-success" style="display:none;"><i class="fas fa-check-double me-1"></i> Auto Saved</span>
+
+            <div class="exam-timer-box" id="timerBox">
+                <i class="fas fa-stopwatch"></i>
+                <span id="timerDisplay">00:00</span>
+            </div>
+
+            <button type="button" class="btn btn-danger font-semibold px-4" data-bs-toggle="modal" data-bs-target="#submitConfirmModal">
+                Submit Exam
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN EXAM CONTAINER -->
+    <div class="exam-container">
+        <!-- LEFT SIDEBAR - QUESTION PALETTE -->
+        <div class="exam-sidebar-left">
+            <h6 class="fw-bold mb-2"><i class="fas fa-th me-2 text-primary"></i>Question Palette</h6>
+            <div class="text-xs text-secondary mb-3">Click any question number to jump directly.</div>
+
+            <div class="question-palette-grid mb-4">
+                <button th:each="q, stat : ${questions}" 
+                        th:id="${'palette_btn_' + q.id}" 
+                        class="palette-btn"
+                        th:classappend="${savedAnswersMap.containsKey(q.id) and savedAnswersMap.get(q.id).markedForReview ? 'marked' : savedAnswersMap.containsKey(q.id) and ((savedAnswersMap.get(q.id).selectedOptionIds != null and !#strings.isEmpty(savedAnswersMap.get(q.id).selectedOptionIds)) or (savedAnswersMap.get(q.id).textAnswer != null and !#strings.isEmpty(savedAnswersMap.get(q.id).textAnswer))) ? 'attempted' : ''}"
+                        th:onclick="'jumpToQuestion(' + ${stat.index} + ')'"
+                        th:text="${stat.count}">1</button>
+            </div>
+
+            <!-- PALETTE LEGEND -->
+            <div class="border-top pt-3 text-xs">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="palette-btn attempted" style="width:20px; height:20px; cursor:default;"></span>
+                    <span>Attempted</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="palette-btn marked" style="width:20px; height:20px; cursor:default;"></span>
+                    <span>Marked for Review</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="palette-btn" style="width:20px; height:20px; cursor:default;"></span>
+                    <span>Unattempted</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER QUESTION CAROUSEL -->
+        <div class="exam-content-center">
+            <form th:action="@{'/student/exams/take/' + ${studentExam.id} + '/submit'}" method="post" id="examSubmitForm">
+                <input type="hidden" name="source" id="submissionSourceInput" value="MANUAL_SUBMIT">
+            </form>
+
+            <div th:each="q, stat : ${questions}" th:id="${'q_card_' + stat.index}" class="question-card" th:style="${stat.index == 0 ? 'display:block;' : 'display:none;'}">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold fs-5 text-primary" th:text="${'Question ' + stat.count + ' of ' + #lists.size(questions)}">Q1</span>
+                    <div>
+                        <span class="badge bg-secondary me-2" th:text="${q.difficulty}">MEDIUM</span>
+                        <span class="badge bg-success" th:text="${q.marks + ' Marks'}">1 Mark</span>
+                    </div>
+                </div>
+
+                <div class="glass-card p-4 mb-4">
+                    <p class="fs-5 fw-semibold mb-0" th:text="${q.questionText}">Question description...</p>
+                </div>
+
+                <!-- MCQ SINGLE CHOICE -->
+                <div th:if="${q.questionType.name() == 'MCQ_SINGLE' or q.questionType.name() == 'TRUE_FALSE'}" class="mb-4">
+                    <div th:each="opt : ${q.options}" 
+                         class="option-card"
+                         th:classappend="${savedAnswersMap.containsKey(q.id) and savedAnswersMap.get(q.id).selectedOptionIds == opt.id.toString() ? 'selected' : ''}"
+                         th:onclick="'selectRadioOption(' + ${q.id} + ', ' + ${opt.id} + ')'">
+                        <input class="form-check-input me-2" type="radio" 
+                               th:name="${'q_' + q.id}" 
+                               th:id="${'opt_' + opt.id}" 
+                               th:value="${opt.id}"
+                               th:checked="${savedAnswersMap.containsKey(q.id) and savedAnswersMap.get(q.id).selectedOptionIds == opt.id.toString()}"
+                               th:onchange="'saveAnswer(' + ${q.id} + ')'">
+                        <label class="form-check-label flex-fill mb-0 fw-medium" th:for="${'opt_' + opt.id}" th:text="${opt.optionText}">Option</label>
+                    </div>
+                </div>
+
+                <!-- MCQ MULTIPLE CHOICE -->
+                <div th:if="${q.questionType.name() == 'MCQ_MULTIPLE'}" class="mb-4">
+                    <div th:each="opt : ${q.options}" class="option-card">
+                        <input class="form-check-input me-2" type="checkbox" 
+                               th:name="${'q_multi_' + q.id}" 
+                               th:id="${'opt_' + opt.id}" 
+                               th:value="${opt.id}"
+                               th:checked="${savedAnswersMap.containsKey(q.id) and savedAnswersMap.get(q.id).selectedOptionIds != null and #strings.contains(savedAnswersMap.get(q.id).selectedOptionIds, opt.id.toString())}"
+                               th:onchange="'saveAnswer(' + ${q.id} + ')'">
+                        <label class="form-check-label flex-fill mb-0 fw-medium" th:for="${'opt_' + opt.id}" th:text="${opt.optionText}">Option</label>
+                    </div>
+                </div>
+
+                <!-- FILL IN BLANK -->
+                <div th:if="${q.questionType.name() == 'FILL_BLANK'}" class="mb-4">
+                    <label class="form-label text-secondary fw-semibold">Your Answer</label>
+                    <input type="text" 
+                           th:id="${'q_text_' + q.id}" 
+                           class="form-control form-control-lg" 
+                           placeholder="Type your answer here..."
+                           th:value="${savedAnswersMap.containsKey(q.id) ? savedAnswersMap.get(q.id).textAnswer : ''}"
+                           th:onblur="'saveAnswer(' + ${q.id} + ')'">
+                </div>
+
+                <!-- BOTTOM NAVIGATION BUTTONS -->
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                    <div>
+                        <button type="button" class="btn btn-outline-warning" th:onclick="'saveAnswer(' + ${q.id} + ', true)'">
+                            <i class="fas fa-bookmark me-1"></i> Mark for Review
+                        </button>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary px-4" th:onclick="'jumpToQuestion(' + ${stat.index - 1} + ')'" th:disabled="${stat.index == 0}">
+                            <i class="fas fa-chevron-left me-1"></i> Previous
+                        </button>
+                        <button type="button" class="btn btn-primary-gradient px-4" th:onclick="'jumpToQuestion(' + ${stat.index + 1} + ')'" th:if="${stat.index < #lists.size(questions) - 1}">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBMIT CONFIRMATION MODAL -->
+    <div class="modal fade" id="submitConfirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-card border-0 p-3">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2 text-primary"></i>Submit Examination?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-secondary">
+                    Are you sure you want to submit your examination now? All your answers will be automatically evaluated.
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Test</button>
+                    <button type="button" class="btn btn-primary-gradient px-4" onclick="autoSubmitExam('MANUAL_SUBMIT')">Yes, Submit Exam</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/js/exam-engine.js}"></script>
+    <script th:inline="javascript">
+        /*[+
+        const attemptId = /*[[${studentExam.id}]]*/ 0;
+        const initialSeconds = /*[[${secondsRemaining}]]*/ 0;
+        const totalCount = /*[[${#lists.size(questions)}]]*/ 0;
+        +]*/
+
+        totalQuestionsCount = totalCount;
+        initExamEngine(attemptId, initialSeconds);
+
+        function jumpToQuestion(index) {
+            if (index < 0 || index >= totalQuestionsCount) return;
+            document.querySelectorAll('.question-card').forEach((card, idx) => {
+                card.style.display = (idx === index) ? 'block' : 'none';
+            });
+            document.querySelectorAll('.palette-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === index);
+            });
+            currentQuestionIndex = index;
+        }
+
+        function selectRadioOption(qId, optId) {
+            const radio = document.getElementById(`opt_${optId}`);
+            if (radio) {
+                radio.checked = true;
+                saveAnswer(qId);
+            }
+        }
+    </script>
+</body>
+</html>

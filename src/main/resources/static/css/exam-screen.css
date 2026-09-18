@@ -1,0 +1,133 @@
+/* Proctored Distraction-Free Exam Screen CSS */
+.exam-header {
+    background: var(--bg-surface);
+    border-bottom: 2px solid var(--border-color);
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.exam-timer-box {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 0.5rem 1.25rem;
+    border-radius: 2rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.exam-timer-box.timer-warning {
+    background: rgba(244, 63, 94, 0.15);
+    border-color: #f43f5e;
+    color: #f43f5e;
+    animation: pulseTimer 1s infinite alternate;
+}
+
+@keyframes pulseTimer {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+}
+
+.exam-container {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - 80px);
+}
+
+.exam-sidebar-left {
+    width: 280px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border-color);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.question-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.palette-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-body);
+    color: var(--text-primary);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.palette-btn.active {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.palette-btn.attempted {
+    background: #10b981 !important;
+    color: white !important;
+    border-color: #10b981 !important;
+}
+
+.palette-btn.marked {
+    background: #f59e0b !important;
+    color: white !important;
+    border-color: #f59e0b !important;
+}
+
+.exam-content-center {
+    flex: 1;
+    padding: 2.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.option-card {
+    background: var(--bg-surface);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.option-card:hover {
+    border-color: var(--primary);
+    background: rgba(59, 130, 246, 0.03);
+}
+
+.option-card.selected {
+    border-color: var(--primary);
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.security-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    background: #be123c;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 25px rgba(190, 18, 60, 0.4);
+}

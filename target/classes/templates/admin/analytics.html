@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>System Analytics & Leaderboard - Smart Online Examination System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar(activePage='analytics')}"></div>
+
+        <div class="app-main">
+            <div th:replace="~{fragments/header :: navbar(pageTitle='Detailed System Analytics')}"></div>
+
+            <div class="p-4">
+                <!-- DIFFICULTY DISTRIBUTION & SYSTEM METRICS -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6">
+                        <div class="glass-card p-4">
+                            <h5 class="fw-bold mb-3"><i class="fas fa-chart-pie me-2 text-primary"></i>Question Difficulty Spread</h5>
+                            <div class="d-flex justify-content-around text-center py-3">
+                                <div>
+                                    <div class="fs-2 fw-bold text-success" th:text="${analytics.difficultyDistribution['EASY']}">0</div>
+                                    <div class="text-sm text-muted">Easy Questions</div>
+                                </div>
+                                <div>
+                                    <div class="fs-2 fw-bold text-warning" th:text="${analytics.difficultyDistribution['MEDIUM']}">0</div>
+                                    <div class="text-sm text-muted">Medium Questions</div>
+                                </div>
+                                <div>
+                                    <div class="fs-2 fw-bold text-danger" th:text="${analytics.difficultyDistribution['HARD']}">0</div>
+                                    <div class="text-sm text-muted">Hard Questions</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="glass-card p-4">
+                            <h5 class="fw-bold mb-3"><i class="fas fa-university me-2 text-primary"></i>Subject Exam Density</h5>
+                            <ul class="list-group list-group-flush bg-transparent">
+                                <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center" th:each="entry : ${analytics.subjectExamCounts}">
+                                    <span th:text="${entry.key}">Subject</span>
+                                    <span class="badge bg-primary rounded-pill" th:text="${entry.value + ' Exams'}">0</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GLOBAL LEADERBOARD -->
+                <div class="glass-card p-4">
+                    <h5 class="fw-bold mb-3"><i class="fas fa-trophy me-2 text-warning"></i>Global Student Leaderboard</h5>
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Student</th>
+                                    <th>Exam Title</th>
+                                    <th>Subject</th>
+                                    <th>Score Obtained</th>
+                                    <th>Percentage</th>
+                                    <th>Time Taken</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="lb : ${leaderboard}">
+                                    <td>
+                                        <span class="badge rounded-circle p-2" 
+                                              th:classappend="${lb.rank == 1 ? 'bg-warning text-dark' : lb.rank == 2 ? 'bg-secondary text-white' : 'bg-light text-dark'}"
+                                              th:text="${'#' + lb.rank}">#1</span>
+                                    </td>
+                                    <td class="fw-bold" th:text="${lb.studentName}">Student</td>
+                                    <td th:text="${lb.examTitle}">Exam</td>
+                                    <td th:text="${lb.subjectName}">Subject</td>
+                                    <td th:text="${lb.score + ' / ' + lb.totalMarks}">Score</td>
+                                    <td class="fw-bold text-primary" th:text="${lb.percentage + '%'}">100%</td>
+                                    <td th:text="${lb.timeTakenFormatted}">12m 30s</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(leaderboard)}">
+                                    <td colspan="7" class="text-center text-muted py-3">No student exam completion records yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

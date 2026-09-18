@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Answer Key Review - Smart Online Examination System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar(activePage='dashboard')}"></div>
+
+        <div class="app-main">
+            <div th:replace="~{fragments/header :: navbar(pageTitle='Detailed Answer Key & Evaluation Breakdown')}"></div>
+
+            <div class="p-4">
+                <div class="glass-card p-4 mb-4" style="max-width: 900px; margin: 0 auto;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="fw-bold mb-1">Answer Review & Explanations</h4>
+                            <div class="text-sm text-secondary">
+                                Exam: <strong th:text="${studentExam.exam.title}">Title</strong> | 
+                                Score: <strong class="text-primary" th:text="${studentExam.marksObtained + ' / ' + studentExam.totalMarks}">16 / 20</strong>
+                            </div>
+                        </div>
+                        <a th:href="@{'/student/results/' + ${studentExam.id}}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i> Back to Result Summary</a>
+                    </div>
+                </div>
+
+                <!-- QUESTION BREAKDOWN LIST -->
+                <div style="max-width: 900px; margin: 0 auto;">
+                    <div th:each="q, stat : ${questions}" class="glass-card p-4 mb-4 position-relative">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="fw-bold fs-5" th:text="${'Question ' + stat.count}">Q1</span>
+                            <div>
+                                <span class="badge" th:classappend="${answersMap.containsKey(q.id) and answersMap.get(q.id).correct != null and answersMap.get(q.id).correct ? 'bg-success' : answersMap.containsKey(q.id) and answersMap.get(q.id).correct != null and !answersMap.get(q.id).correct ? 'bg-danger' : 'bg-secondary'}"
+                                      th:text="${answersMap.containsKey(q.id) and answersMap.get(q.id).correct != null and answersMap.get(q.id).correct ? 'CORRECT (+ ' + q.marks + ')' : answersMap.containsKey(q.id) and answersMap.get(q.id).correct != null and !answersMap.get(q.id).correct ? 'INCORRECT (0.0)' : 'UNANSWERED'}">Correct</span>
+                            </div>
+                        </div>
+
+                        <p class="fs-5 fw-semibold mb-3" th:text="${q.questionText}">Question description...</p>
+
+                        <!-- MCQ OPTIONS REVIEW -->
+                        <div th:if="${q.questionType.name() != 'FILL_BLANK'}" class="mb-3">
+                            <div th:each="opt : ${q.options}" 
+                                 class="p-3 rounded-3 border mb-2 d-flex justify-content-between align-items-center"
+                                 th:classappend="${opt.correct ? 'bg-success bg-opacity-10 border-success' : answersMap.containsKey(q.id) and answersMap.get(q.id).selectedOptionIds != null and #strings.contains(answersMap.get(q.id).selectedOptionIds, opt.id.toString()) ? 'bg-danger bg-opacity-10 border-danger' : 'bg-body'}">
+                                <div>
+                                    <i class="fas me-2" th:classappend="${opt.correct ? 'fa-check-circle text-success' : answersMap.containsKey(q.id) and answersMap.get(q.id).selectedOptionIds != null and #strings.contains(answersMap.get(q.id).selectedOptionIds, opt.id.toString()) ? 'fa-times-circle text-danger' : 'fa-circle text-muted'}"></i>
+                                    <span th:text="${opt.optionText}">Option text</span>
+                                </div>
+                                <div>
+                                    <span class="badge bg-success" th:if="${opt.correct}">Correct Key</span>
+                                    <span class="badge bg-danger" th:if="${answersMap.containsKey(q.id) and answersMap.get(q.id).selectedOptionIds != null and #strings.contains(answersMap.get(q.id).selectedOptionIds, opt.id.toString()) and !opt.correct}">Your Answer</span>
+                                    <span class="badge bg-primary" th:if="${answersMap.containsKey(q.id) and answersMap.get(q.id).selectedOptionIds != null and #strings.contains(answersMap.get(q.id).selectedOptionIds, opt.id.toString()) and opt.correct}">Your Answer (Correct)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FILL BLANK REVIEW -->
+                        <div th:if="${q.questionType.name() == 'FILL_BLANK'}" class="p-3 bg-body rounded-3 border mb-3">
+                            <div class="mb-2">
+                                <span class="text-secondary fw-semibold">Your Answer: </span>
+                                <strong th:text="${answersMap.containsKey(q.id) and answersMap.get(q.id).textAnswer != null ? answersMap.get(q.id).textAnswer : '(No answer typed)'}">Answer</strong>
+                            </div>
+                            <div>
+                                <span class="text-secondary fw-semibold">Expected Correct Key: </span>
+                                <strong class="text-success" th:text="${q.blankAnswer}">Key</strong>
+                            </div>
+                        </div>
+
+                        <!-- EXPLANATION BOX -->
+                        <div th:if="${q.explanation != null and !#strings.isEmpty(q.explanation)}" class="p-3 bg-surface rounded-3 border-start border-4 border-primary mt-3">
+                            <div class="fw-bold text-primary text-xs uppercase mb-1"><i class="fas fa-lightbulb me-1"></i> Answer Rationale & Explanation</div>
+                            <div class="text-sm text-secondary" th:text="${q.explanation}">Explanation text...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

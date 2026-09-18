@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart Online Examination System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="bg-body">
+    <div class="login-container">
+        <!-- LEFT SIDE - BRANDING & ILLUSTRATION -->
+        <div class="login-left">
+            <div>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="brand-icon bg-white text-primary fs-3 shadow"><i class="fas fa-graduation-cap"></i></div>
+                    <h2 class="text-white mb-0 brand-font fw-bold fs-2">SmartExam System</h2>
+                </div>
+                <h1 class="display-5 fw-bold mb-3">Smart Online Examination & Auto Evaluation Platform</h1>
+                <p class="fs-5 opacity-90">Next-Generation EdTech testing platform featuring proctored online exams, instant automated grading, and comprehensive performance analytics.</p>
+            </div>
+
+            <!-- Features List -->
+            <div class="my-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-circle p-2 bg-white bg-opacity-20"><i class="fas fa-robot text-white"></i></div>
+                    <div><strong>Smart Auto-Evaluation Engine</strong> for MCQs, Multi-choice, T/F, & Blanks</div>
+                </div>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-circle p-2 bg-white bg-opacity-20"><i class="fas fa-shield-alt text-white"></i></div>
+                    <div><strong>Proctored Exam Security</strong> with Tab-Switch Warning Detection</div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle p-2 bg-white bg-opacity-20"><i class="fas fa-chart-pie text-white"></i></div>
+                    <div><strong>Real-Time Analytics & Leaderboards</strong></div>
+                </div>
+            </div>
+
+            <div class="text-sm opacity-75">&copy; 2026 Smart Online Examination System - Academic Project</div>
+        </div>
+
+        <!-- RIGHT SIDE - LOGIN FORM -->
+        <div class="login-right">
+            <div class="mb-4">
+                <h3 class="fw-bold mb-1">Welcome Back</h3>
+                <p class="text-secondary">Please sign in to access your portal dashboard.</p>
+            </div>
+
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i> <span th:text="${errorMessage}">Error</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i> <span th:text="${successMessage}">Success</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-body border-end-0"><i class="fas fa-user text-muted"></i></span>
+                        <input type="text" name="username" class="form-control border-start-0" placeholder="Enter your username" required autofocus>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-body border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                        <input type="password" name="password" class="form-control border-start-0" placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe">
+                        <label class="form-check-label text-sm text-secondary" for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="text-sm text-primary text-decoration-none">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary-gradient w-100 py-2.5 mb-3">Sign In</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <p class="text-secondary text-sm">Don't have a student account? <a href="/register" class="text-primary fw-semibold text-decoration-none">Register Here</a></p>
+            </div>
+
+            <!-- DEMO LOGIN QUICK FILL BUTTONS -->
+            <div class="mt-4 p-3 rounded-3 bg-body border">
+                <div class="text-xs text-uppercase text-muted fw-bold mb-2 text-center">Quick Demo Login Fill</div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary flex-fill" onclick="fillDemo('admin', 'admin123')"><i class="fas fa-user-shield me-1"></i> Admin</button>
+                    <button class="btn btn-sm btn-outline-success flex-fill" onclick="fillDemo('faculty1', 'faculty123')"><i class="fas fa-chalkboard-teacher me-1"></i> Faculty</button>
+                    <button class="btn btn-sm btn-outline-info flex-fill" onclick="fillDemo('student1', 'student123')"><i class="fas fa-user-graduate me-1"></i> Student</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script>
+        function fillDemo(user, pass) {
+            document.querySelector('input[name="username"]').value = user;
+            document.querySelector('input[name="password"]').value = pass;
+        }
+    </script>
+</body>
+</html>

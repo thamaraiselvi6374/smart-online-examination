@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+    <aside th:fragment="sidebar" class="app-sidebar">
+        <a href="/" class="sidebar-brand">
+            <div class="brand-icon"><i class="fas fa-graduation-cap"></i></div>
+            <span class="brand-text">SmartExam AI</span>
+        </a>
+
+        <!-- ADMIN SIDEBAR NAV -->
+        <div sec:authorize="hasRole('ADMIN')">
+            <div class="nav-label">Admin Management</div>
+            <ul class="sidebar-nav">
+                <li><a href="/admin/dashboard" class="sidebar-link" th:classappend="${activePage == 'dashboard' ? 'active' : ''}"><i class="fas fa-chart-line"></i><span>Dashboard</span></a></li>
+                <li><a href="/admin/users" class="sidebar-link" th:classappend="${activePage == 'users' ? 'active' : ''}"><i class="fas fa-users-cog"></i><span>Manage Users</span></a></li>
+                <li><a href="/admin/subjects" class="sidebar-link" th:classappend="${activePage == 'subjects' ? 'active' : ''}"><i class="fas fa-book"></i><span>Subjects</span></a></li>
+                <li><a href="/admin/exams" class="sidebar-link" th:classappend="${activePage == 'exams' ? 'active' : ''}"><i class="fas fa-file-alt"></i><span>All Exams</span></a></li>
+                <li><a href="/admin/analytics" class="sidebar-link" th:classappend="${activePage == 'analytics' ? 'active' : ''}"><i class="fas fa-pie-chart"></i><span>System Analytics</span></a></li>
+                <li><a href="/admin/activity-logs" class="sidebar-link" th:classappend="${activePage == 'logs' ? 'active' : ''}"><i class="fas fa-shield-alt"></i><span>Activity Logs</span></a></li>
+            </ul>
+        </div>
+
+        <!-- FACULTY SIDEBAR NAV -->
+        <div sec:authorize="hasRole('FACULTY')">
+            <div class="nav-label">Faculty Portal</div>
+            <ul class="sidebar-nav">
+                <li><a href="/faculty/dashboard" class="sidebar-link" th:classappend="${activePage == 'dashboard' ? 'active' : ''}"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+                <li><a href="/faculty/exams/create" class="sidebar-link" th:classappend="${activePage == 'create-exam' ? 'active' : ''}"><i class="fas fa-plus-circle"></i><span>Create Exam</span></a></li>
+            </ul>
+        </div>
+
+        <!-- STUDENT SIDEBAR NAV -->
+        <div sec:authorize="hasRole('STUDENT')">
+            <div class="nav-label">Student Portal</div>
+            <ul class="sidebar-nav">
+                <li><a href="/student/dashboard" class="sidebar-link" th:classappend="${activePage == 'dashboard' ? 'active' : ''}"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+                <li><a href="/student/leaderboard" class="sidebar-link" th:classappend="${activePage == 'leaderboard' ? 'active' : ''}"><i class="fas fa-trophy"></i><span>Leaderboard</span></a></li>
+            </ul>
+        </div>
+
+        <div class="mt-auto pt-3 border-top border-secondary-subtle">
+            <a href="/logout" class="sidebar-link text-danger"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+        </div>
+    </aside>
+</body>
+</html>
